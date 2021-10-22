@@ -4,6 +4,7 @@ const express = require("express"),
 // VALIDATOR
 const userSigninValidator = require("../Middleware/Validators/user/signinValidator");
 const userSignupValidator = require("../Middleware/Validators/user/signupValidator");
+const createSlotValidator = require("../Middleware/Validators/user/createSlotValidator")
 
 // // HELPER
 const { verifyToken, 
@@ -18,6 +19,9 @@ module.exports = (function() {
     router.post("/signup", [userSignupValidator], userController.Signup);
 
     router.use("*", [verifyToken, verifyUser]);
-    router.post("/slot", userController.createAppoinment);
+    router.post("/slot", [createSlotValidator], userController.createAppoinment);
+    
+    router.post("/doctor", userController.getDoctorByCategory);
+    router.post("/doctor/booking", userController.getAppoinmentDataByDate);
     return router;
 });

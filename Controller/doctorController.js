@@ -8,7 +8,7 @@ const {
         hashPassword } = require('../Middleware/Helpers/authHelper');
 
 const Signin = async (req, res) => {
-    let {email, password} = req.body;
+    const {email, password} = req.body;
     doctorData = await Doctor.findOne({email}).exec();
     if(!_.isEmpty(doctorData)) {
         data = await accessToken({id: doctorData._id, email});
@@ -28,11 +28,12 @@ const Signin = async (req, res) => {
 }
 
 const Signup = async (req, res) => {
-    let doctor = new Doctor;
-    let {name, email, password, phone} = req.body;
+    const doctor = new Doctor;
+    const {name, email, password, phone, category} = req.body;
     doctor.name = name;
     doctor.email = email;
     doctor.phone = phone;
+    doctor.category = category;
     doctor.address.state = req.body?.state;
     doctor.address.street = req.body?.street;
     doctor.address.country = req.body?.country;
@@ -51,14 +52,14 @@ const Signup = async (req, res) => {
 
 const addDoctorSlot = async (req, res) => {
     try {
-        let doctor_id = req.user_id;
-        let { date, 
+        const doctor_id = req.user_id;
+        const { date, 
             morning_starttime, 
             morning_endtime, 
             evening_starttime,
             evening_endtime} = req.body;
 
-        let data = {
+        const data = {
             date,
             morning_starttime,
             morning_endtime,
@@ -86,9 +87,9 @@ const addDoctorSlot = async (req, res) => {
 }
 
 const updateDoctorSlotStatus = async (req, res) => {
-    let doctor_id = req.user_id;
+    const doctor_id = req.user_id;
     try {
-        let { date, is_active, reason } = req.body;
+        const { date, is_active, reason } = req.body;
         await Doctor.find({_id: doctor_id, "slot.date": date}).then(async (response) => {
             if(response.length != 0) {
                 await Doctor.updateOne({_id: doctor_id, "slot.date": date}, {$set: {

@@ -36,6 +36,11 @@ const doctorSchema = new Mongoose.Schema({
         }, 
         coordinates: [Number]
     },
+    category: {
+        type: String,
+        trim: true,
+        required: true
+    },
     address: {
         street: {
             type: String,

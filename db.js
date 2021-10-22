@@ -1,15 +1,14 @@
 require("dotenv").config()
 const {DB_CONNECTION} = process.env
 
-let mongoose = require("mongoose"),
+const mongoose = require("mongoose"),
     config = require('./config'),
-    constant = require("./constant"),
-    _db;
+    constant = require("./constant");
 
 module.exports = {
     connect : callback => {
-        let url = config[DB_CONNECTION].database.db_url;
-        let mongoose_config = config[DB_CONNECTION].database.mongoose_config;
+        const url = config[DB_CONNECTION].database.db_url;
+        const mongoose_config = config[DB_CONNECTION].database.mongoose_config;
 
         mongoose.connect(url, mongoose_config, (err, conn) => {
             if(err) {
@@ -25,6 +24,5 @@ module.exports = {
     },
     close : () => {
         mongoose.disconnect();
-    },
-    _db
+    }
 }

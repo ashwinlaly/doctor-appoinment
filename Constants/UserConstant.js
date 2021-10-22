@@ -9,6 +9,11 @@ module.exports = {
         message: "USER SIGNUP ERROR"
     },
 
+    DOCTOR_SLOT_ERROR: {
+        code: 406,
+        message: "DOCTOR SLOT ERROR"
+    },
+
     USER_SIGNIN_SUCCESS:{
         code: 201,
         message: "USER SIGNIN SUCCESS"

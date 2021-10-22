@@ -15,7 +15,7 @@ const getAllDoctorTypes = async (req, res) => {
 }
 
 const getOneDoctorType = async (req, res) => {
-    let doctor_type = req.params.id;
+    const doctor_type = req.params.id;
     await DoctorType.findById({_id: doctor_type}).then(data => {
         if(!_.isEmpty(data)){
             const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_GET_SUCCESS;
@@ -29,7 +29,7 @@ const getOneDoctorType = async (req, res) => {
 
 const createDoctorType = async(req, res) => {
     const {category_name} = req.body;
-    let doctorType = new DoctorType({category_name});
+    const doctorType = new DoctorType({category_name});
     await doctorType.save().then(data => {
         const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_CREATE_SUCCESS;
         return res.status(code).json({ data, code, message });
@@ -53,11 +53,11 @@ const updateDoctorTypes = async(req, res) => {
 
 const deleteDoctorTypes = async(req, res) => {
     doctor_type_id = req.params.id;
-    await DoctorType.findByIdAndDelete({_id : doctor_type_id}).then(data => {
-        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DELETE_SUCCESS;
+    await DoctorType.findByIdAndDeconste({_id : doctor_type_id}).then(data => {
+        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DEconstE_SUCCESS;
         return res.status(code).json({ code, message });
     }).catch(error => {
-        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DELETE_ERROR;
+        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DEconstE_ERROR;
         return res.status(code).json({code, message, error: error.errors});
     });
 }

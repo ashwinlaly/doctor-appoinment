@@ -31,6 +31,14 @@ class Time {
         }
     }
 
+    addMinutesToTime(time, salt) {
+        return moment(time, "H:mm").add(salt, 'minute').format("H:mm");
+    }
+
+    addSecondsToTime(time, salt) {
+        return moment(time, "H:mm").add(salt, 'seconds').format("H:mm");
+    }
+
     generateTime(startTime, endTime) {
         let Times = [];
         let end_time = endTime;
@@ -39,9 +47,9 @@ class Time {
         try {
             while(this.isStartAndEndCorrect(beginning_time, end_time)) {
                 beginning_time = moment(beginning_time, "H:mm").add(10, 'minute').format("H:mm");
+                beginning_time = beginning_time.length === 4 ?  '0' + beginning_time: beginning_time;
                 Times.push(beginning_time);
             }
-            console.log(Times);
             return Times;
         } catch(error) {
             return error;
