@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Time = require("../Helpers/timeHelper");
 const Doctor = require("../Model/Doctor");
 const DoctorConstant = require("../Constants/DoctorContant");
 
@@ -61,10 +62,10 @@ const addDoctorSlot = async (req, res) => {
 
         const data = {
             date,
-            morning_starttime,
-            morning_endtime,
-            evening_starttime,
-            evening_endtime,
+            morning_starttime: Time.formatTime(morning_starttime),
+            morning_endtime: Time.formatTime(morning_endtime),
+            evening_starttime: Time.formatTime(evening_starttime),
+            evening_endtime: Time.formatTime(evening_endtime)
         };
         await Doctor.find({_id: doctor_id, "slot.date": date}).then(async (response) => {
             if(response.length != 0) {

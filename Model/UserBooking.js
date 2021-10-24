@@ -25,7 +25,7 @@ const userBookingSchema = new Mongoose.Schema({
         trim: true,
         required: true
     },
-    doctor_perscription: {
+    doctor_prescription: {
         type: String,
         trim: true
     },

@@ -8,12 +8,32 @@ class Time {
     checkIsPM(time) {
         return moment(time, "H:mm A").format("A") === "PM";
     }
+
+    formatTime(time) {
+        return moment(time, "H:mm").format("H:mm");
+    }
     
     isValidTime(time) {
         try {
             return moment(time, "H:mm").isValid();
         } catch(Error){
             throw new Error("Invalid time Provided");
+        }
+    }
+
+    isAfter(start_time, end_time) {
+        if(this.isValidTime(start_time) && this.isValidTime(end_time)) {
+            return moment(start_time, "h:mm").isAfter(moment(end_time, "h:mm"));
+        } else {
+            return false;
+        }
+    }
+
+    isBefore(start_time, end_time) {
+        if(this.isValidTime(start_time) && this.isValidTime(end_time)) {
+            return moment(start_time, "h:mm").isBefore(moment(end_time, "h:mm"));
+        } else {
+            return false;
         }
     }
 

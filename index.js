@@ -4,6 +4,7 @@ require("dotenv").config()
 const express = require("express");
 const app = express();
 const ws = require('ws');
+const cors = require("cors");
 
 // Custom Modules
 const db = require("./db");
@@ -13,6 +14,7 @@ const routes = require("./Route/route")();
 // Streams
 
 // Middleware 
+app.use(cors());
 app.use(express.json());
 app.use("/api/", routes);
 app.get('/', function(req, res) {

@@ -90,14 +90,18 @@ const getAppoinmentDataByDate = async (req, res) => {
         "email": true,
         "phone": true,
     };
-    const doctorAvailability = await getDoctorDataForAvailabilty(doctor_id, date, _project);
-    if(doctorAvailability.length) {
-        const _morningSlot = Time.generateTime(doctorAvailability[0].slot.morning_starttime,  doctorAvailability[0].slot.morning_endtime);
-        const _eveningSlot = Time.generateTime(doctorAvailability[0].slot.evening_starttime,  doctorAvailability[0].slot.evening_endtime);
-        const data = {...doctorAvailability[0], morning: _morningSlot, evening: _eveningSlot};
-        return res.status(200).json({ code: 200, message: "Done", data: data});
-    } else {
-        return res.status(406).json({ code: 406, message: "Doctor is not Avaliable"});
+    try {
+        let doctorAvailability = _.head(await getDoctorDataForAvailabilty(doctor_id, date, _project));
+        if(doctorAvailability) {
+            const _morningSlot = Time.generateTime(doctorAvailability.slot.morning_starttime,  doctorAvailability.slot.morning_endtime);
+            const _eveningSlot = Time.generateTime(doctorAvailability.slot.evening_starttime,  doctorAvailability.slot.evening_endtime);
+            const data = {...doctorAvailability, morning: _morningSlot, evening: _eveningSlot};
+            return res.status(200).json({ code: 200, message: "Done", data: data});
+        } else {
+            throw new Error("Doctor not Availble..");
+        }
+    } catch(error) {
+        return res.status(406).json({ code: 406, message: error.message});
     }
 }
 
@@ -105,100 +109,73 @@ const createAppoinment = async (req, res) => {
     const user_id = req.user_id;
     const {doctor_id, date, starttime, endtime} = req.body;
 
-    const _defaultFilter = {"slot.date": new Date(date), "slot.is_active": true}
-    let _match;
-    if(Time.checkIsAM(starttime)) {
-        _match = {
-            ..._defaultFilter,       
-            "slot.morning_starttime": {
-                $gte: starttime
-            },
-            "slot.morning_endtime": {
-                $lte: endtime
-            }
-        };
-    } else {
-        _match = {
-            ..._defaultFilter,
-            "slot.evening_starttime": {
-                $gte: starttime
-            },
-            "slot.evening_endtime": {
-                $lte: endtime
-            }
-        };
-    }
     try {
-        const doctorAvailability = await getDoctorDataForSlotAvailabilty(doctor_id, date, _match);
-        console.log(doctorAvailability, _match);
-        if(doctorAvailability.length) {
-            await UserBooking.find({
-                doctor_id: Mongoose.Types.ObjectId(doctor_id), 
-                start: {"$gte":starttime},
-                start: {"$lte": starttime}
-            }).then(bookingSlotAlreadyExists => {
-                console.log(1, bookingSlotAlreadyExists);
-                if(bookingSlotAlreadyExists.length) {
-                    return res.status(202).json({ code: 202, message: "Doctor is busy by that time"});
-                } else {
-                    let userBookingSlot = new UserBooking();
-                    userBookingSlot.date = date;
-                    userBookingSlot.user_id = user_id;
-                    userBookingSlot.doctor_id = doctor_id;
-                    userBookingSlot.starttime = starttime;
-                    userBookingSlot.endtime = endtime;
-                    userBookingSlot.save();
-                    return res.status(201).json({ code: 201, message: "Slot created sucessfully."});
-                }
-            }).catch(error => {
-                console.log(error);
-                return res.status(406).json({ code: 406, message: "Doctor is not Avaliable..."});
-            });
+        const doctorAvailability = _.head(await getDoctorDataForAvailabilty(doctor_id, date));
+        if(Time.checkIsAM(starttime)) {
+            const {slot_start_time, slot_end_time} = doctorAvailability.slot;
+            if(Time.isBefore(slot_start_time, starttime)) {
+
+            }
+        } else if(Time.checkIsPM(starttime)) {
+
         } else {
-            return res.status(406).json({ code: 406, message: "Doctor is not Avaliable.."});
+            throw new Error("Doctor not Availble..");
         }
+
+        // if(doctorAvailability.length) {
+        //     await UserBooking.find({
+        //         doctor_id: Mongoose.Types.ObjectId(doctor_id), 
+        //         start: {"$gte":starttime},
+        //         start: {"$lte": starttime}
+        //     }).then(bookingSlotAlreadyExists => {
+        //         console.log(1, bookingSlotAlreadyExists);
+        //         if(bookingSlotAlreadyExists.length) {
+        //             return res.status(202).json({ code: 202, message: "Doctor is busy by that time"});
+        //         } else {
+        //             let userBookingSlot = new UserBooking();
+        //             userBookingSlot.date = date;
+        //             userBookingSlot.user_id = user_id;
+        //             userBookingSlot.doctor_id = doctor_id;
+        //             userBookingSlot.starttime = starttime;
+        //             userBookingSlot.endtime = endtime;
+        //             userBookingSlot.save();
+        //             return res.status(201).json({ code: 201, message: "Slot created sucessfully."});
+        //         }
+        //     }).catch(error => {
+        //         console.log(error);
+        //         return res.status(406).json({ code: 406, message: "Doctor is not Avaliable..."});
+        //     });
+        // } else {
+        //     return res.status(406).json({ code: 406, message: "Doctor is not Avaliable.."});
+        // }
     } catch(error) {
         console.log(error);
-        return res.status(406).json({ code: 406, message: "Doctor is not Avaliable."});
+        return res.status(406).json({ code: 406, message: error.message});
     }
 }
 
 const getDoctorDataForAvailabilty = async (doctor_id, date, _project = HIDDEN_DOCTOR_DATA) => {
-    const doctorAvailability = await Doctor.aggregate([
-        {
-            $match: {
-                _id: Mongoose.Types.ObjectId(doctor_id)
-            },
-        }, {  $unwind: {
-                path: "$slot"
+    try {
+        const doctorAvailability = await Doctor.aggregate([
+            {
+                $match: {
+                    _id: Mongoose.Types.ObjectId(doctor_id)
+                },
+            }, {  $unwind: {
+                    path: "$slot"
+                }
+            }, {  $match: {
+                    "slot.date": new Date(date),
+                    "slot.is_active": true
+                }
+            }, {
+                $project: _project
             }
-        }, {  $match: {
-                "slot.date": new Date(date),
-                "slot.is_active": true
-            }
-        }, {
-            $project: _project
-        }
-    ]).exec();
-    return doctorAvailability;
-}
-
-const getDoctorDataForSlotAvailabilty = async (doctor_id, date, _match, _project = HIDDEN_DOCTOR_DATA) => {
-    const doctorAvailability = await Doctor.aggregate([
-        {
-            $match: {
-                _id: Mongoose.Types.ObjectId(doctor_id)
-            },
-        }, {  $unwind: {
-                path: "$slot"
-            }
-        }, {  
-            $match: _match
-        }, {
-            $project: _project
-        }
-    ]).exec();
-    return doctorAvailability;
+        ]).exec();
+        return doctorAvailability;
+    } catch(error) {
+        throw new Error("Doctor not Availble.");
+    }
 }
 
 module.exports = {
