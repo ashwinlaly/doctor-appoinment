@@ -14,7 +14,9 @@ const routes = require("./Route/route")();
 // Streams
 
 // Middleware 
-app.use(cors());
+app.use(cors({
+    origin: "*"
+}));
 app.use(express.json());
 app.use("/api/", routes);
 app.get('/', function(req, res) {
