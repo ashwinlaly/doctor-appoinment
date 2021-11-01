@@ -53,11 +53,11 @@ const updateDoctorTypes = async(req, res) => {
 
 const deleteDoctorTypes = async(req, res) => {
     doctor_type_id = req.params.id;
-    await DoctorType.findByIdAndDeconste({_id : doctor_type_id}).then(data => {
-        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DEconstE_SUCCESS;
+    await DoctorType.findByIdAndDelete({_id : doctor_type_id}).then(data => {
+        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DELETE_SUCCESS;
         return res.status(code).json({ code, message });
     }).catch(error => {
-        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DEconstE_ERROR;
+        const {code, message} = DoctorTypeConstant.DOCTOR_TYPE_DELETE_ERROR;
         return res.status(code).json({code, message, error: error.errors});
     });
 }
