@@ -1,6 +1,9 @@
 const _ = require('lodash');
+const moment = require("moment");
+const Mongoose = require("mongoose");
 const Time = require("../Helpers/timeHelper");
 const Doctor = require("../Model/Doctor");
+const UserBooking = require("../Model/UserBooking");
 const DoctorConstant = require("../Constants/DoctorContant");
 
 const { 
@@ -62,19 +65,19 @@ const addDoctorSlot = async (req, res) => {
 
         const data = {
             date,
-            morning_starttime: Time.formatTime(morning_starttime),
-            morning_endtime: Time.formatTime(morning_endtime),
-            evening_starttime: Time.formatTime(evening_starttime),
-            evening_endtime: Time.formatTime(evening_endtime)
+            morning_starttime: Time.dateTimeToUnix(date, morning_starttime),
+            morning_endtime: Time.dateTimeToUnix(date, morning_endtime),
+            evening_starttime: Time.dateTimeToUnix(date, evening_starttime),
+            evening_endtime: Time.dateTimeToUnix(date, evening_endtime)
         };
         await Doctor.find({_id: doctor_id, "slot.date": date}).then(async (response) => {
-            if(response.length != 0) {
+            if(response.length) {
                 await Doctor.updateOne({_id: doctor_id, "slot.date": date}, {$set: {
                     "slot.$.date": date,
-                    "slot.$.morning_starttime": morning_starttime,
-                    "slot.$.morning_endtime": morning_endtime,
-                    "slot.$.evening_starttime": evening_starttime,
-                    "slot.$.evening_endtime": evening_endtime
+                    "slot.$.morning_starttime": data.morning_starttime,
+                    "slot.$.morning_endtime": data.morning_endtime,
+                    "slot.$.evening_starttime": data.evening_starttime,
+                    "slot.$.evening_endtime": data.evening_endtime
                 }}).exec();
                 return res.status(201).json({ code: 201, message: "Slot updated successfully" });
             } else {
@@ -83,6 +86,7 @@ const addDoctorSlot = async (req, res) => {
             }
         });
     } catch(error) {
+        console.log(error);
         return res.status(406).json({ code: 406, message: "Slot operation Error", error });
     }
 }
@@ -105,9 +109,44 @@ const updateDoctorSlotStatus = async (req, res) => {
     }
 }
 
+const updateDoctorAppoinmentStatus = async (req, res) => {
+    try {
+        const { appointment_id, is_active, prescription } = req.body;
+        await UserBooking.updateOne({_id: appointment_id}, {$set: {
+            "is_active": is_active,
+            "doctor_prescription": prescription
+        }}).exec();
+        return res.status(201).json({ code: 201, message: "Appointment updated successfully" });
+    } catch(error) {
+        return res.status(406).json({ code: 406, message: "Appointment operation Error", error });
+    }
+}
+
+const getAppoinmentDataByDate = async (req, res) => {
+    const doctor_id = req.user_id;
+    const {date} = req.body;
+    try {
+        let doctorAppoinments = await UserBooking.find({
+            doctor_id: Mongoose.Types.ObjectId(doctor_id),
+            date: new Date(date)
+        })
+        .populate("user_id", "-_id name email phone address")
+        .exec();
+        if(doctorAppoinments) {
+            return res.status(200).json({ code: 200, message: "Get User Appoinments", data: doctorAppoinments});
+        } else {
+            throw new Error("No appoiments");
+        }
+    } catch(error) {
+        return res.status(406).json({ code: 406, message: error.message});
+    }
+}
+
 module.exports = {
     Signin,
     Signup,
     addDoctorSlot,
-    updateDoctorSlotStatus
+    updateDoctorSlotStatus,
+    getAppoinmentDataByDate,
+    updateDoctorAppoinmentStatus
 }

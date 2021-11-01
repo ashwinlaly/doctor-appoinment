@@ -8,22 +8,22 @@ const doctorSlotSchema = new Mongoose.Schema({
         min: moment().format("YYYY-MM-DD")
     },
     morning_starttime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },
     morning_endtime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },
     evening_starttime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },
     evening_endtime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },

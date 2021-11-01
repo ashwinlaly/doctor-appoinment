@@ -21,5 +21,7 @@ module.exports = (function() {
     router.use("*", [verifyToken, verifyDoctor]);
     router.post("/slot", [doctorSlotValidator],doctorController.addDoctorSlot);
     router.post("/slot/status", doctorController.updateDoctorSlotStatus);
+    router.post("/appoinments", doctorController.getAppoinmentDataByDate);
+    router.post("/appoinment/status", doctorController.updateDoctorAppoinmentStatus);
     return router;
 });

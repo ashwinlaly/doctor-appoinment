@@ -16,12 +16,12 @@ const userBookingSchema = new Mongoose.Schema({
         required: true
     },
     starttime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },
     endtime : {
-        type: String,
+        type: Number,
         trim: true,
         required: true
     },

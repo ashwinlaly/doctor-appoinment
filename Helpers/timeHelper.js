@@ -1,16 +1,57 @@
 let moment = require("moment");
+const DATE_FORMAT = "YYYY-MM-DD";
 
 class Time {
     checkIsAM(time) {
-        return moment(time, "H:mm A").format("A") === "AM";
+        try {
+            return moment(time, "H:mm A").format("A") === "AM";
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
     }
 
     checkIsPM(time) {
-        return moment(time, "H:mm A").format("A") === "PM";
+        try {
+            return moment(time, "H:mm A").format("A") === "PM";
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
+    }
+
+    dateTimeToUnix(date, time) {
+        try {
+            if(this.isValidTime(time) && this.isValidDate(date)) {
+                return moment(date+' '+time).unix();
+            } else {
+                return '';
+            }
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
+    }
+
+    UnixToTime(unix) {
+        try {
+            return moment.unix(unix).format("H:mm");
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
+    }
+
+    UnixToDate(unix) {
+        try {
+            return moment.unix(unix).format(DATE_FORMAT);
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
     }
 
     formatTime(time) {
-        return moment(time, "H:mm").format("H:mm");
+        try {
+            return moment(time, "H:mm").format("H:mm");
+        } catch(Error){
+            throw new Error("Invalid time Provided");
+        }
     }
     
     isValidTime(time) {
@@ -18,6 +59,15 @@ class Time {
             return moment(time, "H:mm").isValid();
         } catch(Error){
             throw new Error("Invalid time Provided");
+        }
+    }
+
+    isValidDate(date) {
+        try {
+            let validDate = moment(date, DATE_FORMAT);
+            return moment(validDate).isValid();
+        } catch(Error){
+            throw new Error("Invalid Date Provided");
         }
     }
 
@@ -66,7 +116,7 @@ class Time {
         Times.push(beginning_time);
         try {
             while(this.isStartAndEndCorrect(beginning_time, end_time)) {
-                beginning_time = moment(beginning_time, "H:mm").add(10, 'minute').format("H:mm");
+                beginning_time = moment(beginning_time, "H:mm").add(30, 'minute').format("H:mm");
                 beginning_time = beginning_time.length === 4 ?  '0' + beginning_time: beginning_time;
                 Times.push(beginning_time);
             }
