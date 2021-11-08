@@ -124,22 +124,25 @@ const createAppoinment = async (req, res) => {
         let isValidDateProvided = false;
         const doctorAvailability = _.head(await getDoctorTimeForAvailabilty(doctor_id, _match));
 
-        if(Time.checkIsAM(starttime)) {
-            $morning_endtime = doctorAvailability.slot.morning_endtime;
-            $morning_starttime = doctorAvailability.slot.morning_starttime;
+        if(doctorAvailability) {
+            if(Time.checkIsAM(starttime)) {
+                $morning_endtime = doctorAvailability.slot.morning_endtime;
+                $morning_starttime = doctorAvailability.slot.morning_starttime;
 
-            if( _.inRange(_starttime, $morning_starttime, $morning_endtime +1) &&
-                _.inRange(_endtime, $morning_starttime, $morning_endtime +1)) {
+                if( _.inRange(_starttime, $morning_starttime, $morning_endtime +1) &&
+                    _.inRange(_endtime, $morning_starttime, $morning_endtime +1)) {
+                        isValidDateProvided = true;
+                    }
+            } else {
+                $evening_endtime = doctorAvailability.slot.evening_endtime;
+                $evening_starttime = doctorAvailability.slot.evening_starttime;
+                
+                console.log("e", $evening_endtime, $evening_starttime);
+                if( _.inRange(_starttime, $evening_starttime, $evening_endtime +1) &&
+                    _.inRange(_endtime, $evening_starttime, $evening_endtime +1)) {
                     isValidDateProvided = true;
                 }
-        } else {
-            $evening_endtime = doctorAvailability.slot.evening_endtime;
-            $evening_starttime = doctorAvailability.slot.evening_starttime;
-            isValidDateProvided = true;
-            if( _.inRange(_starttime, $evening_starttime, $evening_endtime +1) &&
-                _.inRange(_endtime, $evening_starttime, $evening_endtime +1)) {
-                isValidDateProvided = true;
-            }
+            }   
         }
         if(isValidDateProvided) {
             let isAlreadyBooked = await UserBooking.aggregate([
