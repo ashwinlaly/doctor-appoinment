@@ -17,16 +17,6 @@ const doctorSlotSchema = new Mongoose.Schema({
         trim: true,
         required: true
     },
-    evening_starttime : {
-        type: Number,
-        trim: true,
-        required: true
-    },
-    evening_endtime : {
-        type: Number,
-        trim: true,
-        required: true
-    },
     is_active: {
         type: Boolean,
         default: true

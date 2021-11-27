@@ -86,7 +86,7 @@ const addDoctorSlot = async (req, res) => {
             }
         });
     } catch(error) {
-        console.log(error);
+        console.log("Slot operation Error", error);
         return res.status(406).json({ code: 406, message: "Slot operation Error", error });
     }
 }
@@ -133,6 +133,8 @@ const getAppoinmentDataByDate = async (req, res) => {
         .populate("user_id", "-_id name email phone address")
         .exec();
         if(doctorAppoinments) {
+            doctorAppoinments.starttime = Time.UnixToTime(doctorAppoinments.starttime);
+            doctorAppoinments.endtime = Time.UnixToTime(doctorAppoinments.endtime);
             return res.status(200).json({ code: 200, message: "Get User Appoinments", data: doctorAppoinments});
         } else {
             throw new Error("No appoiments");
