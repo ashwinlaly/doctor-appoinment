@@ -11,8 +11,8 @@ const doctorTypeController = require("../Controller/doctorTypeController");
 
 // // Routes
 module.exports = (function() {
-    router.use("*", [verifyToken, verifyDoctor]);
     router.get("/", doctorTypeController.getAllDoctorTypes);
+    router.use("*", [verifyToken, verifyDoctor]);
     router.post("/", doctorTypeController.createDoctorType);
     router.get("/:id", [validateObjectID] ,doctorTypeController.getOneDoctorType);
     router.patch("/:id", [validateObjectID], doctorTypeController.updateDoctorTypes);

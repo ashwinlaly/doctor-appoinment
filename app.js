@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const ws = require('ws');
 const cors = require("cors");
+const helmet = require("helmet");
 
 // Custom Modules
 const constant = require("./constant");
@@ -12,6 +13,7 @@ const routes = require("./Route/route")();
 app.use(cors({
     origin: "*"
 }));
+app.use(helmet());
 app.use(express.json());
 app.use("/api/", routes);
 app.get('/', function(req, res) {

@@ -19,3 +19,7 @@ db.connect(STATUS => {
         process.exit();
     }
 });
+
+process.on("unhandledRejection", (error) => {
+    console.log("Application Start Error", error);
+})

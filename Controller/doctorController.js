@@ -7,9 +7,10 @@ const UserBooking = require("../Model/UserBooking");
 const DoctorConstant = require("../Constants/DoctorContant");
 
 const { 
-        comparePassword, 
         accessToken, 
-        hashPassword } = require('../Middleware/Helpers/authHelper');
+        hashPassword,
+        comparePassword
+    } = require('../Middleware/Helpers/authHelper');
 
 const Signin = async (req, res) => {
     const {email, password} = req.body;
@@ -46,12 +47,23 @@ const Signup = async (req, res) => {
     await doctor.save(error => {
         if (error) {
             const {code, message} = DoctorConstant.DOCTOR_SIGNUP_ERROR;
-            return res.status(code).json({code, message, error: error.message});
+            return res.status(code).json({code, message, error: [
+                {msg: error.message}
+            ]});
         } else {
             const {code, message} = DoctorConstant.DOCTOR_SIGNUP_SUCCESS;
             return res.status(code).json({ code, message });
         }
     });
+}
+
+const getDoctorSlot = async (req, res) => {
+    const doctor_id = req.user_id;
+    const doctorSlots = await Doctor.findById(Mongoose.Types.ObjectId(doctor_id)).exec();
+    if(_.isArray(doctorSlots.slot)) {
+        return res.status(200).json({ code: 200, message: "Slot Information", data: doctorSlots.slot });
+    }
+    return res.status(206).json({ code: 206, message: "No slot exists", data: [] });
 }
 
 const addDoctorSlot = async (req, res) => {
@@ -122,6 +134,7 @@ const updateDoctorAppoinmentStatus = async (req, res) => {
     }
 }
 
+
 const getAppoinmentDataByDate = async (req, res) => {
     const doctor_id = req.user_id;
     const {date} = req.body;
@@ -148,6 +161,7 @@ module.exports = {
     Signin,
     Signup,
     addDoctorSlot,
+    getDoctorSlot,
     updateDoctorSlotStatus,
     getAppoinmentDataByDate,
     updateDoctorAppoinmentStatus

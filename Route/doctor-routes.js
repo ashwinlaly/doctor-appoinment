@@ -19,6 +19,7 @@ module.exports = (function() {
     router.post("/signup", [doctorSignupValidator], doctorController.Signup);
 
     router.use("*", [verifyToken, verifyDoctor]);
+    router.get("/slots", doctorController.getDoctorSlot);
     router.post("/slot", [doctorSlotValidator],doctorController.addDoctorSlot);
     router.post("/slot/status", doctorController.updateDoctorSlotStatus);
     router.post("/appoinments", doctorController.getAppoinmentDataByDate);
